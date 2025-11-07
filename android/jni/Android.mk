@@ -77,7 +77,7 @@ else ifeq ($(TARGET_PLATFORM),android-17)
     MY_SRC_FILES += android_lts_support.c
 endif
 
-MY_CFLAGS := -Wall -Werror -Wno-unused-parameter -Wno-switch -Wno-sign-compare
+MY_CFLAGS := -Wall -Werror -Wno-unused-parameter -Wno-switch -Wno-sign-compare -Wno-single-bit-bitfield-constant-conversion
 MY_LDLIBS := -llog -lz -landroid
 
 MY_BUILD_GENERIC_FFMPEG_KIT := true
@@ -121,3 +121,22 @@ ifeq ($(MY_BUILD_GENERIC_FFMPEG_KIT), true)
 
     $(call import-module, ffmpeg)
 endif
+
+# ---------------------------------------------------------------------
+# Manual c++_shared module registration for NDK 25+ and newer
+# ---------------------------------------------------------------------
+include $(CLEAR_VARS)
+LOCAL_MODULE := c++_shared
+ifeq ($(TARGET_ARCH_ABI), armeabi-v7a)
+    LOCAL_SRC_FILES := $(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/arm-linux-androideabi/libc++_shared.so
+endif
+ifeq ($(TARGET_ARCH_ABI), arm64-v8a)
+    LOCAL_SRC_FILES := $(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so
+endif
+ifeq ($(TARGET_ARCH_ABI), x86)
+    LOCAL_SRC_FILES := $(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/libc++_shared.so
+endif
+ifeq ($(TARGET_ARCH_ABI), x86_64)
+    LOCAL_SRC_FILES := $(ANDROID_NDK_ROOT)/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so
+endif
+include $(PREBUILT_SHARED_LIBRARY)
